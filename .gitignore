@@ -1,0 +1,18 @@
+
+#Compiler Generated Object Files
+*.o
+*.stackdump
+
+#Executables
+*.exe
+*.out
+driver
+
+#Grading Directory
+grading/
+
+#Outputs
+*.png
+
+#scons
+.sconsign.dblite
