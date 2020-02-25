@@ -6,6 +6,23 @@
 // This file contains common data types and definitions that are used elsewhere
 // in this project.  You should not need to make any changes in this file.
 
+// But I will :^)
+
+/* Macro Definitions for my convenience :3 */
+
+// Coordinate values
+#define X 0
+#define Y 1
+#define Z 2
+#define W 3
+
+// Triangle vertice values
+#define T_A 0
+#define T_B 1
+#define T_C 2
+
+/*                                      */
+
 // Data type for a pixel, which packs RGBA values in a 32-bit int.  Use
 // make_pixel and from_pixel to pack or unpack this data.
 typedef unsigned int pixel;
