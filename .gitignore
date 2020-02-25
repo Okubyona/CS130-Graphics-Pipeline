@@ -9,6 +9,7 @@
 driver
 
 #Grading Directory
+*.py
 grading/
 
 #Outputs
