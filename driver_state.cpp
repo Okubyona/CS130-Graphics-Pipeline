@@ -20,8 +20,8 @@ void initialize_render(driver_state& state, int width, int height)
     state.image_height=height;
     state.image_color=0;
     state.image_depth=0;
-    std::cout << "TODO: allocate and initialize state.image_depth."<< std::endl;
-    std::cout << "COMPLETED: allocation and initialization of state.image_color"
+    //std::cout << "TODO: allocate and initialize state.image_depth."<< std::endl;
+    //std::cout << "COMPLETED: allocation and initialization of state.image_color"
               << std::endl;
 
     // Allocate memory for image_color
@@ -41,7 +41,45 @@ void initialize_render(driver_state& state, int width, int height)
 //   render_type::strip -    The vertices are to be interpreted as a triangle strip.
 void render(driver_state& state, render_type type)
 {
-    std::cout<<"TODO: implement rendering."<<std::endl;
+    int triangles;
+    int vertex_index = 0;
+
+    //allocate array of size 3 for data_geometry in rasterize_triangle function
+    data_geometry* geoArray = new data_geometry[3];
+    data_vertex vertexData;
+
+    switch (type) {
+        case render_type::triangle:
+            // Find number of triangles for
+            triangles = state.num_vertices / 3;
+
+            for ( int i = 0; i < triangles; ++i) {
+                for ( int j = 0; j < 3; ++j) {
+                    geoArray[j].data = state.vertex_data + vertex_index;
+                    vertex_index += state.floats_per_vertex;
+                }
+                for ( int k = 0; k < 3; ++k) {
+                    vertexData.data = geoArray[k].data;
+                    state.vertex_shader(vertexData, geoArray[k], state.uniform_data);
+                }
+                rasterize_triangle(state, (const data_geometry**)(&geoArray));
+            }
+            break;
+
+        case render_type::indexed:
+            break;
+
+        case render_type::fan:
+            break;
+
+        case render_type::strip:
+            break;
+
+        default:
+            std::cerr << "ERROR: invalid render_type!" << std::endl;
+    }
+
+    delete[] geoArray;
 }
 
 
