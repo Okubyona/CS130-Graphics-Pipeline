@@ -103,5 +103,98 @@ void clip_triangle(driver_state& state, const data_geometry* in[3],int face)
 // fragments, calling the fragment shader, and z-buffering.
 void rasterize_triangle(driver_state& state, const data_geometry* in[3])
 {
-    std::cout<<"TODO: implement rasterization"<<std::endl;
+    int x[3], y[3];
+
+    // Optimization to ignore pixels outside of image
+    int min_x, min_y;
+    int max_x, max_y;
+
+    // variables for k0 k1 and k2 for barycentric coordinate calculation
+    float k0[3], k1[3], k2[3];
+    // variables for barycentric weight and total area of triangle
+    float area;
+    float bary_weight[3];
+
+    // convert into homogeneous coordinates
+    const float widthOverTwo = state.image_width / 2.0f;
+    const float heightOverTwo = state.image_height / 2.0f;
+    for (int i = 0; i < 3; ++i) {
+        x[i] = (int)(widthOverTwo * (*in)[i].gl_Position[X] / (*in)[i].gl_Position[W]
+                + (widthOverTwo - 0.5f));
+        y[i] = (int)(heightOverTwo * (*in)[i].gl_Position[Y] / (*in)[i].gl_Position[W]
+                + (heightOverTwo - 0.5f));
+    }
+
+
+    // Calculate barycentric weights for alpha beta and gamma
+
+    // alpha
+    k0[T_A] = x[T_B] * y[T_C] - x[T_C] * y[T_B];
+    k1[T_A] = y[T_B] - y[T_C];
+    k2[T_A] = x[T_C] - x[T_B];
+
+    // beta
+    k0[T_B] = x[T_C] * y[T_A] - x[T_A] * y[T_C];
+    k1[T_B] = y[T_C] - y[T_A];
+    k2[T_B] = x[T_A] - x[T_C];
+
+    // gamma
+    k0[T_C] = x[T_A] * y[T_B] - x[T_B] * y[T_A];
+    k1[T_C] = y[T_A] - y[T_B];
+    k2[T_C] = x[T_B] - x[T_A];
+
+    // Find total area
+    area = 0.5f * (k0[T_A] - (x[T_A] * y[T_C] - x[T_C] * y[T_A]) + k0[T_C]);
+
+    // Find min/max coordinates for x & y
+    min_x = state.image_width - 1;
+    min_y = state.image_height - 1;
+    max_x = 0;
+    max_y = 0;
+    for (int i = 0; i < 3; ++i) {
+        min_x = std::min(min_x, x[i]);
+        min_y = std::min(min_y, y[i]);
+
+        max_x = std::max(max_x, x[i]);
+        max_y = std::max(max_y, y[i]);
+
+    }
+
+    // Checking for out of bound values
+    if (min_x < 0) { min_x = 0; }
+    if (min_y < 0) { min_y = 0; }
+    if (max_x > state.image_width) { max_x = state.image_width; }
+    if (max_y > state.image_height) { max_y = state.image_height; }
+
+
+    // Iterate through each pixel and calculate the barycentric weights for
+    // each.
+    for (int i = min_x; i < max_x + 1; i++) {
+        for (int j = min_y; j < max_y + 1; j++) {
+            for (int k = 0; k < 3; k++) {
+                // Calculation is not done doing the iterative approach
+                // We're multiplying every time to find the barycentric
+                bary_weight[k] = .5f * (k0[k] + (k1[k] * i)
+                    + (k2[k] * j)) / area;
+            }
+
+            if (inTriangle(bary_weight)) {
+                // At some point this will need to be changed to get the
+                // actual color of the pixel.
+                state.image_color[i + j * state.image_width] =
+                    make_pixel(255, 255, 255);
+            }
+        }
+    }
+}
+
+
+bool inTriangle(float * bary_weight) {
+    for (int i = 0; i < 3; i++) {
+        if (bary_weight[i] < 0) {
+            return false;
+        }
+    }
+
+    return true;
 }

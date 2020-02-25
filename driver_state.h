@@ -100,4 +100,8 @@ void clip_triangle(driver_state& state, const data_geometry* in[3],int face=0);
 // fragments, calling the fragment shader, and z-buffering.
 void rasterize_triangle(driver_state& state, const data_geometry* in[3]);
 
+// Helper function that checks whether or not a given pixel is inside of a triangle
+// by checking if barycentric weight is less than 0;
+bool inTriangle(float* bary_weight);
+
 #endif
