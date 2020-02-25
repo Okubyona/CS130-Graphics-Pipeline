@@ -20,7 +20,16 @@ void initialize_render(driver_state& state, int width, int height)
     state.image_height=height;
     state.image_color=0;
     state.image_depth=0;
-    std::cout<<"TODO: allocate and initialize state.image_color and state.image_depth."<<std::endl;
+    std::cout << "TODO: allocate and initialize state.image_depth."<< std::endl;
+    std::cout << "COMPLETED: allocation and initialization of state.image_color"
+              << std::endl;
+
+    // Allocate memory for image_color
+    state.image_color = new pixel[height * width];
+    // Initialize image_color
+    for (unsigned int i = 0; i < (height * width); ++i) {
+        state.image_color[i] = make_pixel(0,0,0);
+    }
 }
 
 // This function will be called to render the data that has been stored in this class.
@@ -58,4 +67,3 @@ void rasterize_triangle(driver_state& state, const data_geometry* in[3])
 {
     std::cout<<"TODO: implement rasterization"<<std::endl;
 }
-
